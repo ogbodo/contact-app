@@ -2,7 +2,7 @@
 
 ## To create a contact
 
-`POST /api/contact`
+`POST /contacts`
 
 The request body should contain
 
@@ -60,7 +60,7 @@ Returns status code `400` if the request body is missing the `fullName` or `phon
 
 ## To list all contacts
 
-`GET /api/contact`
+`GET /contacts`
 
 Returns status code `200` if contacts exist. The response body would contain
 
@@ -103,7 +103,7 @@ interface ListContactResponse {
 
 ## To view a single contact information
 
-`GET /api/contact/:contactID`
+`GET /contacts/:contactID`
 
 Returns status code `200` if the contact exist. The response body would contain
 
@@ -135,7 +135,7 @@ Returns status code `404` if no contact exist or no contact matches the requeste
 
 ## Edit the contact information for a single contact
 
-`PATCH /api/contact/:contactID`
+`PATCH /contacts/:contactID`
 
 The request body should contain
 
@@ -193,7 +193,7 @@ Returns status code `400` if the request body is missing the `fullName` or `phon
 
 ## To block a specific contact
 
-`POST /api/contact/block`
+`POST /contacts/block`
 The request should contain
 
 ```ts
@@ -232,7 +232,7 @@ Returns status code `404` if no contact exist or no contact matches the requeste
 
 ## To unblock a specific contact
 
-`POST /api/contact/block`
+`POST /contacts/block`
 The request should contain
 
 ```ts
@@ -271,7 +271,7 @@ Returns status code `404` if no contact exist or no contact matches the requeste
 
 ## To view blocked contacts
 
-`GET /api/contact/block`
+`GET /contacts/block`
 
 Returns status code `200` if contacts exist. The response body would contain
 
