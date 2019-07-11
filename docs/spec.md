@@ -194,14 +194,7 @@ Returns status code `400` if the request body is empty or if `phone` or `email` 
 
 ## To block a specific contact
 
-`POST /contacts/block`
-The request should contain
-
-```ts
-interface contact {
-  contactID: string; //The contact ID
-}
-```
+`POST /contacts/block/:contactID`
 
 Returns status code `200` if the contact exist. The response body would contain
 
