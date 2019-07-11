@@ -183,13 +183,14 @@ interface UpdatedContact {
   metadata: {
     contactID: string; // The uuid of the  contact updated
     createdAt: string; // The ISO date of when the contact was updated
+    updatedAt: string; // The ISO date of when the update was made
     blocked: boolean; //Tells if this contact is Blocked or not
   };
   contact: UpdateContact; // An object with the contact information
 }
 ```
 
-Returns status code `400` if the request body is missing the `fullName` or `phone` values or if `phone` or `email` is not valid.
+Returns status code `400` if the request body is empty or if `phone` or `email` is not valid.
 
 ## To block a specific contact
 
