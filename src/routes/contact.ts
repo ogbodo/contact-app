@@ -125,8 +125,8 @@ router.get('/:contactID', (req, res) => {
   res.status(200).json({ foundContact });
 });
 
-function makeUpdate(oldContact: IData, foundContact: ICreateContact) {
-  return { ...oldContact.contact, ...foundContact };
+function makeUpdate(oldContact: ICreateContact, updateContact: ICreateContact) {
+  return { ...oldContact, ...updateContact };
   //   let {
   //     title,
   //     fullName,
@@ -156,18 +156,28 @@ router.patch('/:contactID', (req, res) => {
     return;
   }
 
-  const foundContact = contactCollection.find(
-    contact => contact.metadata.contactID === contactId,
-  );
+  const updatedContact = contactCollection.find(oldContact => {
+    if (oldContact.metadata.contactID === contactId) {
+      const updatedMetadata = {
+        ...oldContact.metadata,
+        updatedAt: new Date().toLocaleDateString(),
+      };
+      const updatedData: IData = {
+        metadata: updatedMetadata,
+        contact: makeUpdate(oldContact.contact, req.body),
+      };
 
-  if (!foundContact) {
+      return updatedData;
+    }
+    return;
+  });
+
+  if (!updatedContact) {
     res
       .status(404)
       .json({ message: `${contactId} did not match any contact record` });
     return;
   }
-
-  const updatedContact = makeUpdate(foundContact, req.params.body);
 
   res.status(200).json({ updatedContact });
 });
