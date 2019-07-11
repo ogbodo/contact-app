@@ -124,4 +124,51 @@ router.get('/:contactID', (req, res) => {
 
   res.status(200).json({ foundContact });
 });
+
+function makeUpdate(oldContact: IData, foundContact: ICreateContact) {
+  return { ...oldContact.contact, ...foundContact };
+  //   let {
+  //     title,
+  //     fullName,
+  //     phone,
+  //     mobile,
+  //     email,
+  //     homeAddress,
+  //     company,
+  //     country,
+  //     state,
+  //     street,
+  //     zipCode,
+  //     website,
+  //   } = oldContact.contact;
+}
+/** Edit the contact information for a single contact  */
+router.patch('/:contactID', (req, res) => {
+  const { contactID: id } = req.params;
+
+  const { error, value: contactId } = joi.validate<string>(id, getSchema, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+
+  if (error) {
+    res.status(400).json({ error });
+    return;
+  }
+
+  const foundContact = contactCollection.find(
+    contact => contact.metadata.contactID === contactId,
+  );
+
+  if (!foundContact) {
+    res
+      .status(404)
+      .json({ message: `${contactId} did not match any contact record` });
+    return;
+  }
+
+  const updatedContact = makeUpdate(foundContact, req.params.body);
+
+  res.status(200).json({ updatedContact });
+});
 export default router;
