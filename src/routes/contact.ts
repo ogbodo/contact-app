@@ -79,7 +79,9 @@ router.post('/', (req, res) => {
     return;
   }
 
-  res.status(200).json({ metadata: generateMetadata(), data: value });
+  res
+    .status(200)
+    .json({ data: { metadata: generateMetadata(), contact: value } });
 });
 
 export default router;
