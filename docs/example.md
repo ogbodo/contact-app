@@ -1,5 +1,7 @@
 # Contact API Documentation
 
+## To create a contact
+
 `POST /api/contact`
 
 The request body should contain
