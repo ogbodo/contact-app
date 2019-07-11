@@ -1,5 +1,5 @@
 import express from 'express';
-import joi from '@hapi/joi';
+import joi, { date } from '@hapi/joi';
 
 const router = express.Router();
 
@@ -8,7 +8,7 @@ const emailPattern = /^[a-z0-9._+-]{3,}@[a-z0-9_.-]{3,12}\.[a-z0-9]{3,12}(\.[a-z
 const phone = /^(\+123|0)[0-9]{10}$/;
 const websitePattern = /^((http:\/\/|https:\/\/)?)?www\.[a-z0-9_.-]{3,12}\.[a-z0-9]{3,12}(\.[a-z0-9]{2,12})?$/;
 
-interface CreateContact {
+interface ICreateContact {
   title?: string; //initials of the contact, e.g:Mr.Mrs.
   fullName: string; //Full name of the contact
   phone: string; // The phone number of the contact
@@ -54,8 +54,22 @@ const schema = {
     .regex(websitePattern),
 };
 
+interface IMetadata {
+  contactID: string; // The uuid of the  contact
+  createdAt: string; // The ISO date of when the contact was created}
+  blocked: boolean; //Tells if this contact is Blocked or not
+}
+
+function generateMetadata(): IMetadata {
+  return {
+    contactID: new Date().getTime().toString(),
+    blocked: false,
+    createdAt: new Date().toLocaleDateString(),
+  };
+}
+
 router.post('/', (req, res) => {
-  const { error, value } = joi.validate<CreateContact>(req.body, schema, {
+  const { error, value } = joi.validate<ICreateContact>(req.body, schema, {
     abortEarly: false,
     stripUnknown: true,
   });
@@ -65,7 +79,7 @@ router.post('/', (req, res) => {
     return;
   }
 
-  res.status(200).json({ data: value });
+  res.status(200).json({ metadata: generateMetadata(), data: value });
 });
 
 export default router;
