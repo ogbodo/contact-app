@@ -1,4 +1,4 @@
-### To create a contact
+# Contact API Documentation
 
 `POST /api/contact`
 
