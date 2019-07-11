@@ -8,6 +8,7 @@ const phone = /^(\+123|0)[0-9]{10}$/;
 // const websitePattern = /^((http:\/\/|https:\/\/)?)?www\.[a-z0-9_.-]{3,12}\.[a-z0-9]{3,12}(\.[a-z0-9]{2,12})?$/;
 
 const contactCollection: IData[] = []; // this would ideally be a database, but we'll start with something simple
+const blockedContactCollection: string[] = []; // this would ideally be a database, but we'll start with something simple
 interface ICreateContact {
   title?: string; //initials of the contact, e.g:Mr.Mrs.
   fullName: string; //Full name of the contact
@@ -73,6 +74,12 @@ function generateMetadata(): IMetadata {
   };
 }
 
+function findContact(contactId: string) {
+  return contactCollection.find(
+    currentContact => currentContact.metadata.contactID === contactId,
+  );
+}
+
 /**Saves contact */
 router.post('/', (req, res) => {
   const { error, value } = joi.validate<ICreateContact>(req.body, postSchema, {
@@ -84,10 +91,13 @@ router.post('/', (req, res) => {
     res.status(400).json({ error });
     return;
   }
-  const data: IData = { metadata: generateMetadata(), contact: value };
+  const createdContact: IData = {
+    metadata: generateMetadata(),
+    contact: value,
+  };
   //Save this contact into the database
-  contactCollection.push(data);
-  res.status(200).json({ data });
+  contactCollection.push(createdContact);
+  res.status(200).json({ data: createdContact });
 });
 
 /**Fetches all contacts */
@@ -111,9 +121,7 @@ router.get('/:contactID', (req, res) => {
     return;
   }
 
-  const foundContact = contactCollection.find(
-    contact => contact.metadata.contactID === contactId,
-  );
+  const foundContact = findContact(contactId);
 
   if (!foundContact) {
     res
@@ -122,7 +130,7 @@ router.get('/:contactID', (req, res) => {
     return;
   }
 
-  res.status(200).json({ foundContact });
+  res.status(200).json({ data: foundContact });
 });
 
 function makeUpdate(oldContact: ICreateContact, updateContact: ICreateContact) {
@@ -179,6 +187,48 @@ router.patch('/:contactID', (req, res) => {
     return;
   }
 
-  res.status(200).json({ updatedContact });
+  res.status(200).json({ data: updatedContact });
+});
+
+/**Saves blocked contact */
+router.post('/block/:contactID', (req, res) => {
+  const { contactID: id } = req.params;
+
+  const { error, value: contactId } = joi.validate<string>(id, getSchema, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+
+  if (error) {
+    res.status(400).json({ error });
+    return;
+  }
+
+  const blockedContact = contactCollection.find(oldContact => {
+    if (oldContact.metadata.contactID === contactId) {
+      const updatedMetadata = {
+        ...oldContact.metadata,
+        blocked: true,
+      };
+      const updatedData: IData = {
+        metadata: updatedMetadata,
+        contact: oldContact.contact,
+      };
+
+      return updatedData;
+    }
+    return;
+  });
+
+  if (!blockedContact) {
+    res
+      .status(404)
+      .json({ message: `${contactId} did not match any contact record` });
+    return;
+  }
+
+  //Save this contactID into the blocked contact database
+  blockedContactCollection.push(contactId);
+  res.status(200).json({ data: blockedContact });
 });
 export default router;
