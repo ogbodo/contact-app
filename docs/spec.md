@@ -227,13 +227,6 @@ Returns status code `404` if no contact exist or no contact matches the requeste
 ## To unblock a specific contact
 
 `POST /contacts/block/:contactID`
-The request should contain
-
-```ts
-interface contact {
-  contactID: string; //The contact ID
-}
-```
 
 Returns status code `200` if the contact exist. The response body would contain
 
