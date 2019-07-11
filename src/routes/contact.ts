@@ -1,12 +1,11 @@
 import express from 'express';
-import joi, { date } from '@hapi/joi';
+import joi from '@hapi/joi';
 
 const router = express.Router();
 
 const namePattern = /\b[a-zA-Z]+\b$/;
-const emailPattern = /^[a-z0-9._+-]{3,}@[a-z0-9_.-]{3,12}\.[a-z0-9]{3,12}(\.[a-z0-9]{2,12})?$/;
 const phone = /^(\+123|0)[0-9]{10}$/;
-const websitePattern = /^((http:\/\/|https:\/\/)?)?www\.[a-z0-9_.-]{3,12}\.[a-z0-9]{3,12}(\.[a-z0-9]{2,12})?$/;
+// const websitePattern = /^((http:\/\/|https:\/\/)?)?www\.[a-z0-9_.-]{3,12}\.[a-z0-9]{3,12}(\.[a-z0-9]{2,12})?$/;
 
 const contactCollection: IData[] = []; // this would ideally be a database, but we'll start with something simple
 interface ICreateContact {
@@ -28,7 +27,7 @@ interface IData {
   contact: ICreateContact;
 }
 
-const schema = {
+const postSchema = {
   title: joi.string().optional(),
   fullName: joi
     .string()
@@ -45,8 +44,7 @@ const schema = {
   email: joi
     .string()
     .email()
-    .optional()
-    .regex(emailPattern),
+    .optional(),
   homeAddress: joi.string().optional(),
   company: joi.string().optional(),
   country: joi.string().optional(),
@@ -56,9 +54,11 @@ const schema = {
   website: joi
     .string()
     .optional()
-    .regex(websitePattern),
+    .domain(),
 };
-
+const getSchema = {
+  contactID: joi.string().required(),
+};
 interface IMetadata {
   contactID: string; // The uuid of the  contact
   createdAt: string; // The ISO date of when the contact was created}
@@ -75,7 +75,7 @@ function generateMetadata(): IMetadata {
 
 /**Saves contact */
 router.post('/', (req, res) => {
-  const { error, value } = joi.validate<ICreateContact>(req.body, schema, {
+  const { error, value } = joi.validate<ICreateContact>(req.body, postSchema, {
     abortEarly: false,
     stripUnknown: true,
   });
@@ -93,11 +93,35 @@ router.post('/', (req, res) => {
 /**Fetches all contacts */
 router.get('/', (_req, res) => {
   res.status(200).json({
-    data: { metadata: generateMetadata(), contact: contactCollection },
+    data: contactCollection,
   });
 });
 
+/**Fetches a single contacts */
 router.get('/:contactID', (req, res) => {
-  const contact = contactCollection.find(contact => contact);
+  const { contactID: id } = req.params;
+
+  const { error, value: contactId } = joi.validate<string>(id, getSchema, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+
+  if (error) {
+    res.status(400).json({ error });
+    return;
+  }
+
+  const foundContact = contactCollection.find(
+    contact => contact.metadata.contactID === contactId,
+  );
+
+  if (!foundContact) {
+    res
+      .status(404)
+      .json({ message: `${contactId} did not match any contact record` });
+    return;
+  }
+
+  res.status(200).json({ foundContact });
 });
 export default router;
