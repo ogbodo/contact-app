@@ -226,7 +226,7 @@ Returns status code `404` if no contact exist or no contact matches the requeste
 
 ## To unblock a specific contact
 
-`POST /contacts/block`
+`POST /contacts/block/:contactID`
 The request should contain
 
 ```ts
