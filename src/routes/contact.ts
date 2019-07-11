@@ -8,8 +8,7 @@ const emailPattern = /^[a-z0-9._+-]{3,}@[a-z0-9_.-]{3,12}\.[a-z0-9]{3,12}(\.[a-z
 const phone = /^(\+123|0)[0-9]{10}$/;
 const websitePattern = /^((http:\/\/|https:\/\/)?)?www\.[a-z0-9_.-]{3,12}\.[a-z0-9]{3,12}(\.[a-z0-9]{2,12})?$/;
 
-const contactCollection: ICreateContact[] = []; // this would ideally be a database, but we'll start with something simple
-let id = 1; // this will help us identify unique users
+const contactCollection: IData[] = []; // this would ideally be a database, but we'll start with something simple
 interface ICreateContact {
   title?: string; //initials of the contact, e.g:Mr.Mrs.
   fullName: string; //Full name of the contact
@@ -23,6 +22,10 @@ interface ICreateContact {
   street?: string; //contact's street name
   zipCode?: string; //contact's country zip code
   website?: string; //contact's website address
+}
+interface IData {
+  metadata: IMetadata;
+  contact: ICreateContact;
 }
 
 const schema = {
@@ -81,12 +84,10 @@ router.post('/', (req, res) => {
     res.status(400).json({ error });
     return;
   }
-
+  const data: IData = { metadata: generateMetadata(), contact: value };
   //Save this contact into the database
-  contactCollection.push(value);
-  res
-    .status(200)
-    .json({ data: { metadata: generateMetadata(), contact: value } });
+  contactCollection.push(data);
+  res.status(200).json({ data });
 });
 
 /**Fetches all contacts */
@@ -96,4 +97,7 @@ router.get('/', (_req, res) => {
   });
 });
 
+router.get('/:contactID', (req, res) => {
+  const contact = contactCollection.find(contact => contact);
+});
 export default router;
