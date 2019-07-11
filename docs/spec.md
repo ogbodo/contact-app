@@ -88,6 +88,7 @@ interface ListContactResponse {
         website: string; //contact's website address
       };
     },
+    ...,
   ];
 }
 ```
@@ -134,7 +135,7 @@ Returns status code `404` if no contact exist or no contact matches the requeste
 
 ## Edit the contact information for a single contact
 
-`PUT /api/contact/:contactID`
+`PATCH /api/contact/:contactID`
 
 The request body should contain
 
