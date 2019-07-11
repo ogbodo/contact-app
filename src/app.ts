@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 
 import indexRouter from './routes/index';
+import apiRouter from './routes/api';
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/', indexRouter);
+app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler
 app.use(function(_req, _res, next) {
@@ -30,7 +32,7 @@ app.use(function(
   err: any,
   req: express.Request,
   res: express.Response,
-  _next: express.NextFunction
+  _next: express.NextFunction,
 ) {
   // set locals, only providing error in development
   res.locals.message = err.message;
