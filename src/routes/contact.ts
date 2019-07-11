@@ -8,6 +8,8 @@ const emailPattern = /^[a-z0-9._+-]{3,}@[a-z0-9_.-]{3,12}\.[a-z0-9]{3,12}(\.[a-z
 const phone = /^(\+123|0)[0-9]{10}$/;
 const websitePattern = /^((http:\/\/|https:\/\/)?)?www\.[a-z0-9_.-]{3,12}\.[a-z0-9]{3,12}(\.[a-z0-9]{2,12})?$/;
 
+const contactCollection: ICreateContact[] = []; // this would ideally be a database, but we'll start with something simple
+let id = 1; // this will help us identify unique users
 interface ICreateContact {
   title?: string; //initials of the contact, e.g:Mr.Mrs.
   fullName: string; //Full name of the contact
@@ -68,6 +70,7 @@ function generateMetadata(): IMetadata {
   };
 }
 
+/**Saves contact */
 router.post('/', (req, res) => {
   const { error, value } = joi.validate<ICreateContact>(req.body, schema, {
     abortEarly: false,
@@ -79,9 +82,18 @@ router.post('/', (req, res) => {
     return;
   }
 
+  //Save this contact into the database
+  contactCollection.push(value);
   res
     .status(200)
     .json({ data: { metadata: generateMetadata(), contact: value } });
+});
+
+/**Fetches all contacts */
+router.get('/', (_req, res) => {
+  res.status(200).json({
+    data: { metadata: generateMetadata(), contact: contactCollection },
+  });
 });
 
 export default router;
