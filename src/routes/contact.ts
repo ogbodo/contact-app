@@ -8,7 +8,7 @@ const phone = /^(\+123|0)[0-9]{10}$/;
 // const websitePattern = /^((http:\/\/|https:\/\/)?)?www\.[a-z0-9_.-]{3,12}\.[a-z0-9]{3,12}(\.[a-z0-9]{2,12})?$/;
 
 const contactCollection: IData[] = []; // this would ideally be a database, but we'll start with something simple
-const blockedContactCollection: string[] = []; // this would ideally be a database, but we'll start with something simple
+let blockedContactCollection: string[] = []; // this would ideally be a database, but we'll start with something simple
 interface ICreateContact {
   title?: string; //initials of the contact, e.g:Mr.Mrs.
   fullName: string; //Full name of the contact
@@ -190,7 +190,7 @@ router.patch('/:contactID', (req, res) => {
   res.status(200).json({ data: updatedContact });
 });
 
-/**Saves blocked contact */
+/**To blocked a contact */
 router.post('/block/:contactID', (req, res) => {
   const { contactID: id } = req.params;
 
@@ -231,4 +231,56 @@ router.post('/block/:contactID', (req, res) => {
   blockedContactCollection.push(contactId);
   res.status(200).json({ data: blockedContact });
 });
+
+/**To unblock a contact */
+router.post('/block/:contactID', (req, res) => {
+  const { contactID: id } = req.params;
+  const { error, value: contactId } = joi.validate<string>(id, getSchema, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+  if (error) {
+    res.status(400).json({ error });
+    return;
+  }
+  for (const blockedContactID of blockedContactCollection) {
+    if (blockedContactID === contactId) {
+      const foundContact = findContact(blockedContactID);
+      if (!foundContact) {
+        res
+          .status(404)
+          .json({ message: `${contactId} did not match any contact record` });
+        return;
+      }
+      const updatedMetadata = {
+        ...foundContact.metadata,
+        blocked: false,
+      };
+      const updatedData: IData = {
+        metadata: updatedMetadata,
+        contact: foundContact.contact,
+      };
+
+      /**Remove this contact ID from the list of blocked contact IDs collection */
+      blockedContactCollection = blockedContactCollection.filter(
+        blockedContactID => blockedContactID !== contactId,
+      );
+
+      res.status(200).json({ data: updatedData });
+      return;
+    }
+  }
+  res.status(404).json({
+    message: `${contactId} did not match any blocked contact record`,
+  });
+  return;
+});
+
+/**Fetches all contacts */
+router.get('/block', (_req, res) => {
+  res.status(200).json({
+    data: blockedContactCollection,
+  });
+});
+
 export default router;
