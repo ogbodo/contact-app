@@ -104,32 +104,6 @@ router.get('/', (_req, res) => {
   });
 });
 
-/**Fetches a single contacts */
-router.get('/:contactID', (req, res) => {
-  const { contactID: id } = req.params;
-
-  const { error, value: contactId } = joi.validate<string>(id, getSchema, {
-    abortEarly: false,
-    stripUnknown: true,
-  });
-
-  if (error) {
-    res.status(400).json({ error });
-    return;
-  }
-
-  const foundContact = findContact(contactId);
-
-  if (!foundContact) {
-    res
-      .status(404)
-      .json({ message: `${contactId} did not match any contact record` });
-    return;
-  }
-
-  res.status(200).json({ data: foundContact });
-});
-
 function makeUpdate(oldContact: ICreateContact, updateContact: ICreateContact) {
   return { ...oldContact, ...updateContact };
   //   let {
@@ -260,7 +234,7 @@ router.post('/block/:contactID', (req, res) => {
 });
 
 /**To unblock a contact */
-router.post('/block/:contactID', (req, res) => {
+router.post('/blocks/:contactID', (req, res) => {
   const { contactID: id } = req.params;
   const { error, value: contactId } = joi.validate<string>(id, getSchema, {
     abortEarly: false,
@@ -308,6 +282,32 @@ router.get('/block', (_req, res) => {
   res.status(200).json({
     data: blockedContactCollection,
   });
+});
+
+/**Fetches a single contacts */
+router.get('/:contactID', (req, res) => {
+  const { contactID: id } = req.params;
+
+  const { error, value: contactId } = joi.validate<string>(id, getSchema, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+
+  if (error) {
+    res.status(400).json({ error });
+    return;
+  }
+
+  const foundContact = findContact(contactId);
+
+  if (!foundContact) {
+    res
+      .status(404)
+      .json({ message: `${contactId} did not match any contact record` });
+    return;
+  }
+
+  res.status(200).json({ data: foundContact });
 });
 
 export default router;
