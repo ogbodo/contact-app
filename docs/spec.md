@@ -286,8 +286,15 @@ interface ListBlockedContactsResponse {
         website: string; //contact's website address
       };
     },
+    ...
   ];
 }
 ```
 
-Returns status code `404` if no contact exist or no contact matches the requested contactID.
+If no blocked contact exists, returns status code `200` with response body
+
+```ts
+interface ListBlockedContactsResponse {
+  data: [];
+}
+```
