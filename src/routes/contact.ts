@@ -52,10 +52,7 @@ const postSchema = {
   state: joi.string().optional(),
   street: joi.string().optional(),
   zipCode: joi.string().optional(),
-  website: joi
-    .string()
-    .optional()
-    .domain(),
+  website: joi.string().optional(),
 };
 const getSchema = {
   contactID: joi.string().required(),
