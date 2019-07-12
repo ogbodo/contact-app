@@ -7,7 +7,7 @@ const namePattern = /\b[a-zA-Z]+\b$/;
 const phone = /^(\+123|0)[0-9]{10}$/;
 // const websitePattern = /^((http:\/\/|https:\/\/)?)?www\.[a-z0-9_.-]{3,12}\.[a-z0-9]{3,12}(\.[a-z0-9]{2,12})?$/;
 
-const contactCollection: IData[] = []; // this would ideally be a database, but we'll start with something simple
+let contactCollection: IData[] = []; // this would ideally be a database, but we'll start with something simple
 let blockedContactCollection: string[] = []; // this would ideally be a database, but we'll start with something simple
 interface ICreateContact {
   title?: string; //initials of the contact, e.g:Mr.Mrs.
@@ -185,6 +185,36 @@ router.patch('/:contactID', (req, res) => {
   }
 
   res.status(200).json({ data: updatedContact });
+});
+
+/** Edit the contact information for a single contact  */
+router.delete('/:contactID', (req, res) => {
+  const { contactID: id } = req.params;
+
+  const { error, value: contactId } = joi.validate<string>(id, getSchema, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+
+  if (error) {
+    res.status(400).json({ error });
+    return;
+  }
+  const oldLength = contactCollection.length;
+
+  contactCollection = contactCollection.filter(
+    contact => contact.metadata.contactID !== contactId,
+  );
+  const newLength = contactCollection.length;
+
+  if (oldLength === newLength || oldLength != newLength - 1) {
+    res
+      .status(404)
+      .json({ message: `${contactId} did not match any contact record` });
+    return;
+  }
+
+  res.status(200).json({ data: contactCollection });
 });
 
 /**To blocked a contact */
