@@ -120,7 +120,7 @@ interface ContactResponse {
     phone: string; // The phone number of the contact
     mobile: string; // The mobile number of the contact
     email: string; //contact's valid email address
-    homeAddress?: string; //Home address of the contact
+    homeAddress: string; //Home address of the contact
     company: string; //contact's company name
     country: string; //contact's country
     state: string; //contact's state
