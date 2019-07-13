@@ -4,7 +4,7 @@ import joi from '@hapi/joi';
 const router = express.Router();
 
 const namePattern = /\b[a-zA-Z]+\b$/;
-const phone = /^(\+123|0)[0-9]{10}$/;
+const phone = /^(\+[0-9]{3}|0)[0-9]{10}$/;
 // const websitePattern = /^((http:\/\/|https:\/\/)?)?www\.[a-z0-9_.-]{3,12}\.[a-z0-9]{3,12}(\.[a-z0-9]{2,12})?$/;
 
 let contactCollection: IData[] = []; // this would ideally be a database, but we'll start with something simple
@@ -94,6 +94,7 @@ router.post('/', (req, res) => {
   };
   //Save this contact into the database
   contactCollection.push(createdContact);
+
   res.status(200).json({ data: createdContact });
 });
 
@@ -123,42 +124,45 @@ function makeUpdate(oldContact: ICreateContact, updateContact: ICreateContact) {
 }
 /** Edit the contact information for a single contact  */
 router.patch('/:contactID', (req, res) => {
-  const { contactID: id } = req.params;
-
-  const { error, value: contactId } = joi.validate<string>(id, getSchema, {
-    abortEarly: false,
-    stripUnknown: true,
-  });
+  const { error, value: contactId } = joi.validate<string>(
+    req.params,
+    getSchema,
+    {
+      abortEarly: false,
+      stripUnknown: true,
+    },
+  );
 
   if (error) {
     res.status(400).json({ error });
+
     return;
   }
 
-  const updatedContact = contactCollection.find(oldContact => {
+  for (const index in contactCollection) {
+    const oldContact = contactCollection[index];
     if (oldContact.metadata.contactID === contactId) {
       const updatedMetadata = {
         ...oldContact.metadata,
         updatedAt: new Date().toLocaleDateString(),
       };
-      const updatedData: IData = {
+      const updatedContact = { ...oldContact, ...req.body };
+      contactCollection[index] = updatedContact;
+
+      const data: IData = {
         metadata: updatedMetadata,
-        contact: makeUpdate(oldContact.contact, req.body),
+        contact: updatedContact,
       };
 
-      return updatedData;
+      res.status(200).json({ data });
     }
-    return;
-  });
-
-  if (!updatedContact) {
-    res
-      .status(404)
-      .json({ message: `${contactId} did not match any contact record` });
-    return;
   }
 
-  res.status(200).json({ data: updatedContact });
+  res
+    .status(404)
+    .json({ message: `${contactId} did not match any contact record` });
+
+  return;
 });
 
 /** Edit the contact information for a single contact  */
