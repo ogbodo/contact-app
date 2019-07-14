@@ -4,6 +4,7 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import contactRouter from './routes/contact';
+import blockedContactRouter from './routes/blocks';
 
 const app = express();
 
@@ -18,6 +19,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/contacts', contactRouter);
+app.use('/block', blockedContactRouter);
+// app.use('/unblock/:contactID', blockedContactRouter);
 
 // catch 404 and forward to error handler
 app.use(function(_req, _res, next) {
