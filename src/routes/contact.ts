@@ -13,6 +13,7 @@ function generateMetadata(): contactInterface.IMetadata {
     contactID: Date.now().toString(),
     blocked: false,
     createdAt: new Date().toLocaleDateString(),
+    // createdAt: new Date().toISOString(),
   };
 }
 
@@ -21,7 +22,7 @@ function findContact(contactID: contactInterface.IContactID) {
     currentContact => currentContact.metadata.contactID === contactID.id,
   );
 }
-export function doValidation(object: any, schema: any) {
+export function doValidation(object: any, schema: joi.SchemaLike) {
   return joi.validate(object, schema, {
     abortEarly: false,
     stripUnknown: true,
@@ -30,7 +31,10 @@ export function doValidation(object: any, schema: any) {
 
 /**Saves contact */
 router.post('/', (req, res) => {
-  const { error, value } = doValidation(req.body, contactSchema.postSchema);
+  const { error, value } = doValidation(req.body, {
+    ...contactSchema.optionals,
+    ...contactSchema.required,
+  });
 
   if (error) {
     res.status(400).json({ error });
@@ -60,7 +64,7 @@ router.get('/:contactID', (req, res) => {
   const id = req.params.contactID;
   const { error, value: contactId } = doValidation(
     { id },
-    contactSchema.getSchema,
+    contactSchema.iDSchema,
   );
   if (error) {
     res.status(400).json({ error });
@@ -80,61 +84,76 @@ router.get('/:contactID', (req, res) => {
 });
 
 /** Edit the contact information for a single contact  */
-router.put('/:contactID', (req, res) => {
+router.patch('/:contactID', (req, res) => {
   const id = req.params.contactID;
-  const { error, value: contactId } = doValidation(
-    { id },
-    contactSchema.getSchema,
-  );
-
-  const { error: err, value: updates } = doValidation(
-    req.body,
-    contactSchema.getSchema,
-  );
-  if (updates || err) {
-    res.status(400).json({ updates, err });
-
-    return;
-  }
+  const { error } = doValidation({ id }, contactSchema.iDSchema);
 
   if (error) {
     res.status(400).json({ error });
 
     return;
   }
+  if (req.body.fullName) {
+    const { error } = doValidation(
+      req.body.fullName,
+      contactSchema.required.fullName,
+    );
 
-  for (const index in contactCollection) {
-    const oldContact = contactCollection[index];
-    if (oldContact.metadata.contactID === contactId) {
-      const updatedMetadata = {
-        ...oldContact.metadata,
-        updatedAt: new Date().toLocaleDateString(),
-      };
-      const updatedContact = { ...oldContact, ...req.body };
-      contactCollection[index] = updatedContact;
+    if (error) {
+      res.status(400).json({ error });
 
-      const data: contactInterface.IData = {
-        metadata: updatedMetadata,
-        contact: updatedContact,
-      };
+      return;
+    }
+  }
+  if (req.body.phone) {
+    const { error: err } = doValidation(
+      req.body.phone,
+      contactSchema.required.phone,
+    );
 
-      res.status(200).json({ data });
+    if (err) {
+      res.status(400).json({ err: 'phone' });
+
+      return;
     }
   }
 
-  res
-    .status(404)
-    .json({ message: `${contactId} did not match any contact record` });
+  const contactIndex = contactCollection.findIndex(
+    contact => contact.metadata.contactID === id,
+  );
 
-  return;
+  if (contactIndex === -1) {
+    res
+      .status(404)
+      .json({ message: `${id} did not match any contact record ` });
+
+    return;
+  }
+
+  const oldContact = contactCollection[contactIndex];
+
+  const updatedMetadata = {
+    ...oldContact.metadata,
+    updatedAt: new Date().toLocaleDateString(),
+    /* updatedAt: new Date().toISOString(),*/
+  };
+
+  const updatedContact = { ...oldContact.contact, ...req.body };
+  const data: contactInterface.IData = {
+    metadata: updatedMetadata,
+    contact: updatedContact,
+  };
+
+  contactCollection[contactIndex] = data;
+
+  res.status(200).json({ data: contactCollection });
 });
-
 /** Deletes the contact information for a single contact √√√√ */
 router.delete('/:contactID', (req, res) => {
   const id = req.params.contactID;
   const { error, value: contactId } = doValidation(
     { id },
-    contactSchema.getSchema,
+    contactSchema.iDSchema,
   );
 
   if (error) {
@@ -142,24 +161,16 @@ router.delete('/:contactID', (req, res) => {
     return;
   }
   const oldLength = contactCollection.length;
-
   contactCollection = contactCollection.filter(
     contact => contact.metadata.contactID !== contactId.id,
   );
-
   const newLength = contactCollection.length;
-
-  // if (oldLength === newLength || oldLength != newLength - 1) {
   if (oldLength === newLength) {
     res
       .status(404)
       .json({ message: `${contactId.id} did not match any contact record` });
     return;
   }
-
   res.status(200).json({ data: contactCollection });
 });
-
-// router.post('/blocks/:contactID', blockContact);
-
 export default router;
