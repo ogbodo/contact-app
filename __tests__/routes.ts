@@ -88,6 +88,41 @@ test('/Contact route to return all contacts', () => {
     .get('/contacts/')
     .expect(200)
     .expect(res => {
-      res.body;
+      expect(res.body.data.length).toBe(1);
+    });
+});
+
+test('/Contact route to edit a single contact', () => {
+  return request(app)
+    .patch('/contacts/9988973')
+    .send({
+      title: 'pastor',
+      fullName: 'Mary Ogbodo',
+    })
+    .expect(200)
+    .expect({
+      data: [
+        {
+          metadata: {
+            contactID: '9988973',
+            blocked: false,
+            createdAt: '7/15/2019',
+            updatedAt: '7/15/2019',
+          },
+          contact: {
+            title: 'pastor',
+            fullName: 'Mary Ogbodo',
+            phone: '07032150416',
+            mobile: '+2348136503501',
+            email: 'solomon@gmail.com',
+            homeAddress: 'Nyanya Abuja',
+            company: 'Decagon',
+            country: 'Nigeria',
+            state: 'Abuja',
+            street: 'Dantata road',
+            zipCode: '10239891',
+          },
+        },
+      ],
     });
 });
