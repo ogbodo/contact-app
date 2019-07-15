@@ -83,12 +83,11 @@ test('/Contact route a single contacts information', () => {
     });
 });
 
-  test('/home ', () => {
-    return request(app)
-      .post('/home')
-      .send({})
-      .expect(res => {
-        res.body;
-      });
-  });
+test('/Contact route to return all contacts', () => {
+  return request(app)
+    .get('/contacts/')
+    .expect(200)
+    .expect(res => {
+      res.body;
+    });
 });
