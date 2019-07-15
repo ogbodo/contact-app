@@ -7,12 +7,12 @@ export const postSchema = {
   title: joi.string().optional(),
   fullName: joi
     .string()
-    .required()
+    .optional()
     .regex(namePattern),
   phone: joi
     .string()
     // .regex(phone)
-    .required(),
+    .optional(),
   mobile: joi
     .string()
     .regex(phone)
@@ -30,5 +30,5 @@ export const postSchema = {
   website: joi.string().optional(),
 };
 export const getSchema = {
-  id: joi.string().required(),
+  id: joi.string().optional(),
 };

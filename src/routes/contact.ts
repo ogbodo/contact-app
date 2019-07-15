@@ -2,8 +2,6 @@ import express from 'express';
 import joi from '@hapi/joi';
 import * as contactInterface from '../interfaces/contact-interface';
 import * as contactSchema from '../schemas/contact-schema';
-// import * as blockedContactIDs from '../database/blocked-contacts-DB';
-// import blockContact from './blocks';
 
 const router = express.Router();
 
@@ -12,7 +10,7 @@ export let contactCollection: contactInterface.IData[] = [];
 
 function generateMetadata(): contactInterface.IMetadata {
   return {
-    contactID: new Date().getTime().toString(),
+    contactID: Date.now().toString(),
     blocked: false,
     createdAt: new Date().toLocaleDateString(),
   };
@@ -23,22 +21,23 @@ function findContact(contactID: contactInterface.IContactID) {
     currentContact => currentContact.metadata.contactID === contactID.id,
   );
 }
+export function doValidation(object: any, schema: any) {
+  return joi.validate(object, schema, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+}
 
 /**Saves contact */
 router.post('/', (req, res) => {
-  const { error, value } = joi.validate<contactInterface.ICreateContact>(
-    req.body,
-    contactSchema.postSchema,
-    {
-      abortEarly: false,
-      stripUnknown: true,
-    },
-  );
+  const { error, value } = doValidation(req.body, contactSchema.postSchema);
 
   if (error) {
     res.status(400).json({ error });
+
     return;
   }
+
   const createdContact: contactInterface.IData = {
     metadata: generateMetadata(),
     contact: value,
@@ -46,7 +45,7 @@ router.post('/', (req, res) => {
   //Save this contact into the database
   contactCollection.push(createdContact);
 
-  res.status(200).json({ data: createdContact });
+  res.status(200).json({ data: contactCollection });
 });
 
 /**Fetches all contacts √√√√ */
@@ -59,15 +58,10 @@ router.get('/', (_req, res) => {
 /**Fetches a single contacts  √√√√*/
 router.get('/:contactID', (req, res) => {
   const id = req.params.contactID;
-  const { error, value: contactId } = joi.validate<contactInterface.IContactID>(
+  const { error, value: contactId } = doValidation(
     { id },
     contactSchema.getSchema,
-    {
-      abortEarly: false,
-      stripUnknown: true,
-    },
   );
-
   if (error) {
     res.status(400).json({ error });
     return;
@@ -87,14 +81,21 @@ router.get('/:contactID', (req, res) => {
 
 /** Edit the contact information for a single contact  */
 router.put('/:contactID', (req, res) => {
-  const { error, value: contactId } = joi.validate<string>(
-    req.params.contactID,
+  const id = req.params.contactID;
+  const { error, value: contactId } = doValidation(
+    { id },
     contactSchema.getSchema,
-    {
-      abortEarly: false,
-      stripUnknown: true,
-    },
   );
+
+  const { error: err, value: updates } = doValidation(
+    req.body,
+    contactSchema.getSchema,
+  );
+  if (updates || err) {
+    res.status(400).json({ updates, err });
+
+    return;
+  }
 
   if (error) {
     res.status(400).json({ error });
@@ -131,14 +132,9 @@ router.put('/:contactID', (req, res) => {
 /** Deletes the contact information for a single contact √√√√ */
 router.delete('/:contactID', (req, res) => {
   const id = req.params.contactID;
-
-  const { error, value: contactId } = joi.validate<contactInterface.IContactID>(
+  const { error, value: contactId } = doValidation(
     { id },
     contactSchema.getSchema,
-    {
-      abortEarly: false,
-      stripUnknown: true,
-    },
   );
 
   if (error) {
