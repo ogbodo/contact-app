@@ -53,7 +53,6 @@ describe('API Routes', () => {
         ],
       });
   });
-});
 
   test('/Contact route to get a single contacts information', () => {
     return request(app)
