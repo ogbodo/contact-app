@@ -57,9 +57,31 @@ describe('API Routes', () => {
 
 test('/Contact route a single contacts information', () => {
   return request(app)
-      .get('/api/home')
-      .expect(200, { data: 'Hello World' });
-  });
+    .get('/contacts/9988973')
+    .expect(200)
+    .expect({
+      data: {
+        metadata: {
+          contactID: '9988973',
+          blocked: false,
+          createdAt: '7/15/2019',
+        },
+        contact: {
+          title: 'mrs.',
+          fullName: 'Solomon Ogbodo',
+          phone: '07032150416',
+          mobile: '+2348136503501',
+          email: 'solomon@gmail.com',
+          homeAddress: 'Nyanya Abuja',
+          company: 'Decagon',
+          country: 'Nigeria',
+          state: 'Abuja',
+          street: 'Dantata road',
+          zipCode: '10239891',
+        },
+      },
+    });
+});
 
   test('/home ', () => {
     return request(app)
