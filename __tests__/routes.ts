@@ -126,3 +126,13 @@ describe('API Routes', () => {
         ],
       });
   });
+
+  test('/Contact route to delete a single contacts information', () => {
+    return request(app)
+      .delete('/contacts/9988973')
+      .expect(200)
+      .expect({
+        data: [],
+      });
+  });
+});
