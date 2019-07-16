@@ -34,7 +34,7 @@ describe('API Routes', () => {
             metadata: {
               contactID: '9988973',
               blocked: false,
-              createdAt: '7/15/2019',
+              createdAt: '7/16/2019',
             },
             contact: {
               title: 'mrs.',
@@ -63,7 +63,7 @@ describe('API Routes', () => {
           metadata: {
             contactID: '9988973',
             blocked: false,
-            createdAt: '7/15/2019',
+            createdAt: '7/16/2019',
           },
           contact: {
             title: 'mrs.',
@@ -105,8 +105,8 @@ describe('API Routes', () => {
             metadata: {
               contactID: '9988973',
               blocked: false,
-              createdAt: '7/15/2019',
-              updatedAt: '7/15/2019',
+              createdAt: '7/16/2019',
+              updatedAt: '7/16/2019',
             },
             contact: {
               title: 'pastor',
@@ -124,6 +124,49 @@ describe('API Routes', () => {
           },
         ],
       });
+  });
+
+  test('/block route to block a contact information', () => {
+    return request(app)
+      .post('/block/9988973')
+      .expect(200)
+      .expect({ data: [] });
+  });
+
+  test('/block route to get a single blocked contact information', () => {
+    return request(app)
+      .get('/block/9988973')
+      .expect(200)
+      .expect({
+        data: {
+          metadata: {
+            contactID: '9988973',
+            blocked: true,
+            createdAt: '7/16/2019',
+            updatedAt: '7/16/2019',
+          },
+          contact: {
+            title: 'pastor',
+            fullName: 'Mary Ogbodo',
+            phone: '07032150416',
+            mobile: '+2348136503501',
+            email: 'solomon@gmail.com',
+            homeAddress: 'Nyanya Abuja',
+            company: 'Decagon',
+            country: 'Nigeria',
+            state: 'Abuja',
+            street: 'Dantata road',
+            zipCode: '10239891',
+          },
+        },
+      });
+  });
+
+  test('/block route to unblock a contact information', () => {
+    return request(app)
+      .post('/block/9988973')
+      .expect(200)
+      .expect({ data: [] });
   });
 
   test('/Contact route to delete a single contacts information', () => {
