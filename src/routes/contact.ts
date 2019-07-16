@@ -16,7 +16,6 @@ function generateMetadata(): contactInterface.IMetadata {
     // createdAt: new Date().toISOString(),
   };
 }
-
 function findContact(contactID: contactInterface.IContactID) {
   return contactCollection.find(
     currentContact => currentContact.metadata.contactID === contactID.id,
@@ -28,7 +27,6 @@ export function doValidation(object: any, schema: joi.SchemaLike) {
     stripUnknown: true,
   });
 }
-
 /**Saves contact */
 router.post('/', (req, res) => {
   const { error, value } = doValidation(req.body, {
@@ -87,7 +85,6 @@ router.get('/:contactID', (req, res) => {
 router.patch('/:contactID', (req, res) => {
   const id = req.params.contactID;
   const { error } = doValidation({ id }, contactSchema.iDSchema);
-
   if (error) {
     res.status(400).json({ error });
 
@@ -98,7 +95,6 @@ router.patch('/:contactID', (req, res) => {
       req.body.fullName,
       contactSchema.required.fullName,
     );
-
     if (error) {
       res.status(400).json({ error });
 
@@ -110,42 +106,33 @@ router.patch('/:contactID', (req, res) => {
       req.body.phone,
       contactSchema.required.phone,
     );
-
     if (err) {
       res.status(400).json({ err: 'phone' });
 
       return;
     }
   }
-
   const contactIndex = contactCollection.findIndex(
     contact => contact.metadata.contactID === id,
   );
-
   if (contactIndex === -1) {
     res
       .status(404)
       .json({ message: `${id} did not match any contact record ` });
-
     return;
   }
-
   const oldContact = contactCollection[contactIndex];
-
   const updatedMetadata = {
     ...oldContact.metadata,
     updatedAt: new Date().toLocaleDateString(),
     /* updatedAt: new Date().toISOString(),*/
   };
-
   const updatedContact = { ...oldContact.contact, ...req.body };
   const data: contactInterface.IData = {
     metadata: updatedMetadata,
     contact: updatedContact,
   };
-
   contactCollection[contactIndex] = data;
-
   res.status(200).json({ data: contactCollection });
 });
 /** Deletes the contact information for a single contact √√√√ */
