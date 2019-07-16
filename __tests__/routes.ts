@@ -126,11 +126,20 @@ describe('API Routes', () => {
       });
   });
 
-  test('/block route to block a contact information', () => {
+  test('/block route to block a contact information to expect the rest of unblocked contacts', () => {
     return request(app)
       .post('/block/9988973')
       .expect(200)
       .expect({ data: [] });
+  });
+
+  test('/block route to return all blocked contacts', () => {
+    return request(app)
+      .get('/block/')
+      .expect(200)
+      .expect(res => {
+        expect(res.body.data.length).toBe(1);
+      });
   });
 
   test('/block route to get a single blocked contact information', () => {
@@ -162,7 +171,7 @@ describe('API Routes', () => {
       });
   });
 
-  test('/block route to unblock a contact information', () => {
+  test('/block route to unblock a contact information to expect the rest of blocked contacts', () => {
     return request(app)
       .post('/block/9988973')
       .expect(200)
