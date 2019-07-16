@@ -141,18 +141,31 @@ The request body should contain
 
 ```ts
 interface UpdateContact {
-  title?: string; //initials of the contact, e.g:Mr.Mrs.
-  fullName: string; //Full name of the contact
-  phone: string; // The phone number of the contact
-  mobile?: string; // The mobile number of the contact
-  email?: string; //contact's valid email address
-  homeAddress?: string; //Home address of the contact
-  company?: string; //contact's company name
-  country?: string; //contact's country
-  state?: string; //contact's state
-  street?: string; //contact's street name
-  zipCode?: string; //contact's country zip code
-  website?: string; //contact's website address
+   data: [
+    {
+      metadata: {
+        contactID: string; // The uuid of the  contact
+        createdAt: string; // The ISO date of when the contact was created
+        blocked: boolean; //Tells if this contact is Blocked or not
+        updatedAt:string //The ISO date of when last this contact was updated
+      };
+      contact: {
+        title: string; //initials of the contact, e.g:Mr.Mrs.
+        fullName: string; //Full name of the contact
+        phone: string; // The phone number of the contact
+        mobile?: string; // The mobile number of the contact
+        email: string; //contact's valid email address
+        homeAddress: string; //Home address of the contact
+        company: string; //contact's company name
+        country: string; //contact's country
+        state: string; //contact's state
+        street: string; //contact's street name
+        zipCode: string; //contact's country zip code
+        website: string; //contact's website address
+      };
+    },
+    ...,
+  ];
 }
 ```
 
@@ -237,25 +250,31 @@ Returns status code `200` if the contact exist. The response body would contain
 
 ```ts
 interface BlockContactResponse {
-  metadata: {
-    contactID: string; // The uuid of the  contact
-    createdAt: string; // The ISO date of when the contact was created
-    blocked: boolean; //Tells if this contact is Blocked or not
-  };
-  contact: {
-    title: string; //initials of the contact, e.g:Mr.Mrs.
-    fullName: string; //Full name of the contact
-    phone: string; // The phone number of the contact
-    mobile?: string; // The mobile number of the contact
-    email: string; //contact's valid email address
-    homeAddress?: string; //Home address of the contact
-    company: string; //contact's company name
-    country: string; //contact's country
-    state: string; //contact's state
-    street: string; //contact's street name
-    zipCode: string; //contact's country zip code
-    website: string; //contact's website address
-  };
+  data: [
+    {
+      metadata: {
+        contactID: string; // The uuid of the  contact
+        createdAt: string; // The ISO date of when the contact was created
+        blocked: boolean; //Tells if this contact is Blocked or not
+        updatedAt:string //The ISO date of when last this contact was updated
+      };
+      contact: {
+        title: string; //initials of the contact, e.g:Mr.Mrs.
+        fullName: string; //Full name of the contact
+        phone: string; // The phone number of the contact
+        mobile?: string; // The mobile number of the contact
+        email: string; //contact's valid email address
+        homeAddress: string; //Home address of the contact
+        company: string; //contact's company name
+        country: string; //contact's country
+        state: string; //contact's state
+        street: string; //contact's street name
+        zipCode: string; //contact's country zip code
+        website: string; //contact's website address
+      };
+    },
+    ...
+  ];
 }
 ```
 
@@ -269,25 +288,30 @@ Returns status code `200` if the contact exist. The response body would contain
 
 ```ts
 interface UnblockContactResponse {
-  metadata: {
-    contactID: string; // The uuid of the  contact
-    createdAt: string; // The ISO date of when the contact was created
-    blocked: boolean; //Tells if this contact is Blocked or not
-  };
-  contact: {
-    title: string; //initials of the contact, e.g:Mr.Mrs.
-    fullName: string; //Full name of the contact
-    phone: string; // The phone number of the contact
-    mobile?: string; // The mobile number of the contact
-    email: string; //contact's valid email address
-    homeAddress?: string; //Home address of the contact
-    company: string; //contact's company name
-    country: string; //contact's country
-    state: string; //contact's state
-    street: string; //contact's street name
-    zipCode: string; //contact's country zip code
-    website: string; //contact's website address
-  };
+  data: [
+    {
+      metadata: {
+        contactID: string; // The uuid of the  contact
+        createdAt: string; // The ISO date of when the contact was created
+        blocked: boolean; //Tells if this contact is Blocked or not
+        updatedAt: string; //The ISO date of when last this contact was updated
+      };
+      contact: {
+        title: string; //initials of the contact, e.g:Mr.Mrs.
+        fullName: string; //Full name of the contact
+        phone: string; // The phone number of the contact
+        mobile?: string; // The mobile number of the contact
+        email: string; //contact's valid email address
+        homeAddress: string; //Home address of the contact
+        company: string; //contact's company name
+        country: string; //contact's country
+        state: string; //contact's state
+        street: string; //contact's street name
+        zipCode: string; //contact's country zip code
+        website: string; //contact's website address
+      };
+    },
+  ];
 }
 ```
 
