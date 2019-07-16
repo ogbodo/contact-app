@@ -231,7 +231,7 @@ Returns status code `404` if no contact exist or no contact matches the requeste
 
 ## To block a specific contact
 
-`POST /contacts/block/:contactID`
+`POST /block/:contactID`
 
 Returns status code `200` if the contact exist. The response body would contain
 
@@ -263,7 +263,7 @@ Returns status code `404` if no contact exist or no contact matches the requeste
 
 ## To unblock a specific contact
 
-`POST /contacts/block/:contactID`
+`POST /block/:contactID`
 
 Returns status code `200` if the contact exist. The response body would contain
 
@@ -295,7 +295,7 @@ Returns status code `404` if no contact exist or no contact matches the requeste
 
 ## To view blocked contacts
 
-`GET /contacts/block`
+`GET /block`
 
 Returns status code `200` if contacts exist. The response body would contain
 
