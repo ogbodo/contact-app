@@ -2,6 +2,9 @@ import request from 'supertest';
 import app from '../src/app';
 
 describe('API Routes', () => {
+  Date.now = jest.fn(() => 9988973);
+  /**TODO MOCK Date.toISOString */
+
   test('/Contact route to return empty list of contacts when none exists', () => {
     return request(app)
       .get('/contacts/')
@@ -10,8 +13,6 @@ describe('API Routes', () => {
   });
 
   test('/contacts post a contact information and returns same contact ', () => {
-    Date.now = jest.fn(() => 9988973);
-
     return request(app)
       .post('/contacts')
       .send({
