@@ -1,58 +1,57 @@
 import express from 'express';
-import joi from '@hapi/joi';
 import * as contactInterface from '../interfaces/contact-interface';
 import * as contactSchema from '../schemas/contact-schema';
-import { contactCollection } from './contact';
-
+import { contactCollection, doValidation } from './contact';
 const router = express.Router();
 
 // this would ideally be a database, but let me start with something simple
 let blockedContactCollection: contactInterface.IData[] = [];
 
+function changeBlockStatus(contact: contactInterface.IData, status: boolean) {
+  const updatedMetadata = {
+    ...contact.metadata,
+    blocked: status,
+  };
+  return {
+    metadata: updatedMetadata,
+    contact: contact.contact,
+  };
+}
 // /**To blocked/unblock a contact */
 router.post('/:contactID', (req, res) => {
   const id = req.params.contactID;
-  const { error, value: contactId } = joi.validate<contactInterface.IContactID>(
+  const { error, value: contactId } = doValidation(
     { id },
-    contactSchema.getSchema,
-    {
-      abortEarly: false,
-      stripUnknown: true,
-    },
+    contactSchema.iDSchema,
   );
 
   if (error) {
     res.status(400).json({ error });
     return;
   }
-  const combinedCollection = contactCollection.concat(blockedContactCollection);
-  for (const index in combinedCollection) {
-    const contact = combinedCollection[index];
-    if (contact.metadata.contactID === contactId.id) {
-      const updatedMetadata = {
-        ...contact.metadata,
-        blocked: !contact.metadata.blocked,
-      };
-      const blockedContact: contactInterface.IData = {
-        metadata: updatedMetadata,
-        contact: contact.contact,
-      };
-      if (blockedContact.metadata.blocked) {
-        //Save this contact into the list blocked contacts
-        blockedContactCollection.push(blockedContact);
-        /**Remove this contact from the list of unblocked contacts */
-        combinedCollection.splice(Number(index), 1);
-        res.status(200).json({ data: contactCollection });
-        return;
-      } else if (!blockedContact.metadata.blocked) {
-        //Save this contact into the list blocked contacts
-        contactCollection.push(blockedContact);
-        /**Remove this contact from the list of unblocked contacts */
-        combinedCollection.splice(Number(index), 1);
-        res.status(200).json({ data: blockedContactCollection });
-        return;
-      }
-    }
+
+  let contactIndex = contactCollection.findIndex(
+    contact => contact.metadata.contactID === id,
+  );
+
+  if (contactIndex !== -1) {
+    const contact = contactCollection[contactIndex];
+    const blockedContact = changeBlockStatus(contact, true);
+    blockedContactCollection.push(blockedContact); //Save this contact into the list blocked contacts
+    contactCollection.splice(Number(contactIndex), 1); //Remove this contact from the list of unblocked contacts
+    res.status(200).json({ data: contactCollection });
+    return;
+  }
+  contactIndex = blockedContactCollection.findIndex(
+    contact => contact.metadata.contactID === id,
+  );
+  if (contactIndex !== -1) {
+    const contact = blockedContactCollection[contactIndex];
+    const unBlockedContact = changeBlockStatus(contact, false);
+    contactCollection.push(unBlockedContact); //Save this contact into the list blocked contacts
+    blockedContactCollection.splice(Number(contactIndex), 1); //Remove this contact from the list of unblocked contacts
+    res.status(200).json({ data: blockedContactCollection });
+    return;
   }
   res
     .status(404)
@@ -69,13 +68,9 @@ router.get('/', (_req, res) => {
 /**Fetches a single contacts  √√√√*/
 router.get('/:contactID', (req, res) => {
   const id = req.params.contactID;
-  const { error, value: contactId } = joi.validate<contactInterface.IContactID>(
+  const { error, value: contactId } = doValidation(
     { id },
-    contactSchema.getSchema,
-    {
-      abortEarly: false,
-      stripUnknown: true,
-    },
+    contactSchema.iDSchema,
   );
   if (error) {
     res.status(400).json({ error });
