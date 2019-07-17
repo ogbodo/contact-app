@@ -12,15 +12,10 @@ function generateMetadata(): contactInterface.IMetadata {
   return {
     contactID: Date.now().toString(),
     blocked: false,
-    createdAt: new Date().toLocaleDateString(),
-    // createdAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
   };
 }
-function findContact(contactID: contactInterface.IContactID) {
-  return contactCollection.find(
-    currentContact => currentContact.metadata.contactID === contactID.id,
-  );
-}
+
 export function doValidation(object: any, schema: joi.SchemaLike) {
   return joi.validate(object, schema, {
     abortEarly: false,
@@ -30,8 +25,7 @@ export function doValidation(object: any, schema: joi.SchemaLike) {
 /**Saves contact */
 router.post('/', (req, res) => {
   const { error, value } = doValidation(req.body, {
-    ...contactSchema.optionals,
-    ...contactSchema.required,
+    ...contactSchema.post,
   });
 
   if (error) {
@@ -50,84 +44,62 @@ router.post('/', (req, res) => {
   res.status(200).json({ data: contactCollection });
 });
 
-/**Fetches all contacts √√√√ */
+/**Fetches all contacts*/
 router.get('/', (_req, res) => {
   res.status(200).json({
     data: contactCollection,
   });
 });
 
-/**Fetches a single contacts  √√√√*/
+/**Fetches a single contacts*/
 router.get('/:contactID', (req, res) => {
   const id = req.params.contactID;
-  const { error, value: contactId } = doValidation(
-    { id },
-    contactSchema.iDSchema,
-  );
+  const { error } = doValidation({ id }, contactSchema.id);
   if (error) {
     res.status(400).json({ error });
     return;
   }
 
-  const foundContact = findContact(contactId);
+  const foundContact = contactCollection.find(
+    contact => contact.metadata.contactID === id,
+  );
 
   if (!foundContact) {
-    res
-      .status(404)
-      .json({ message: `${contactId.id} did not match any contact record` });
+    res.status(404).json({ message: `${id} did not match any contact record` });
     return;
   }
 
   res.status(200).json({ data: foundContact });
 });
 
-/** Edit the contact information for a single contact  */
+/** Edit the contact information for a single contact*/
 router.patch('/:contactID', (req, res) => {
   const id = req.params.contactID;
-  const { error } = doValidation({ id }, contactSchema.iDSchema);
-  if (error) {
-    res.status(400).json({ error });
+  const { error: err } = doValidation({ id }, contactSchema.id);
+  if (err) {
+    res.status(400).json({ error: err });
 
     return;
   }
-  if (req.body.fullName) {
-    const { error } = doValidation(
-      req.body.fullName,
-      contactSchema.required.fullName,
-    );
-    if (error) {
-      res.status(400).json({ error });
-
-      return;
-    }
+  const { error, value } = doValidation(req.body, contactSchema.patch);
+  if (error) {
+    res.status(400).json({ error });
+    return;
   }
-  if (req.body.phone) {
-    const { error: err } = doValidation(
-      req.body.phone,
-      contactSchema.required.phone,
-    );
-    if (err) {
-      res.status(400).json({ err: 'phone' });
 
-      return;
-    }
-  }
   const contactIndex = contactCollection.findIndex(
     contact => contact.metadata.contactID === id,
   );
   if (contactIndex === -1) {
-    res
-      .status(404)
-      .json({ message: `${id} did not match any contact record ` });
+    res.status(404).json({ message: `${id} did not match any contact record` });
     return;
   }
   const oldContact = contactCollection[contactIndex];
   const updatedMetadata = {
     ...oldContact.metadata,
-    updatedAt: new Date().toLocaleDateString(),
-    /* updatedAt: new Date().toISOString(),*/
+    updatedAt: new Date().toISOString(),
   };
-  const updatedContact = { ...oldContact.contact, ...req.body };
+  const updatedContact = { ...oldContact.contact, ...value };
   const data: contactInterface.IData = {
     metadata: updatedMetadata,
     contact: updatedContact,
@@ -138,10 +110,7 @@ router.patch('/:contactID', (req, res) => {
 /** Deletes the contact information for a single contact √√√√ */
 router.delete('/:contactID', (req, res) => {
   const id = req.params.contactID;
-  const { error, value: contactId } = doValidation(
-    { id },
-    contactSchema.iDSchema,
-  );
+  const { error, value: contactId } = doValidation({ id }, contactSchema.id);
 
   if (error) {
     res.status(400).json({ error });
