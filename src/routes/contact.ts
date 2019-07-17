@@ -54,11 +54,6 @@ router.get('/', (_req, res) => {
 /**Fetches a single contacts*/
 router.get('/:contactID', (req, res) => {
   const id = req.params.contactID;
-  const { error } = doValidation({ id }, contactSchema.id);
-  if (error) {
-    res.status(400).json({ error });
-    return;
-  }
 
   const foundContact = contactCollection.find(
     contact => contact.metadata.contactID === id,
@@ -75,12 +70,6 @@ router.get('/:contactID', (req, res) => {
 /** Edit the contact information for a single contact*/
 router.patch('/:contactID', (req, res) => {
   const id = req.params.contactID;
-  const { error: err } = doValidation({ id }, contactSchema.id);
-  if (err) {
-    res.status(400).json({ error: err });
-
-    return;
-  }
   const { error, value } = doValidation(req.body, contactSchema.patch);
   if (error) {
     res.status(400).json({ error });
@@ -110,23 +99,19 @@ router.patch('/:contactID', (req, res) => {
 /** Deletes the contact information for a single contact √√√√ */
 router.delete('/:contactID', (req, res) => {
   const id = req.params.contactID;
-  const { error, value: contactId } = doValidation({ id }, contactSchema.id);
 
-  if (error) {
-    res.status(400).json({ error });
-    return;
-  }
   const oldLength = contactCollection.length;
   contactCollection = contactCollection.filter(
-    contact => contact.metadata.contactID !== contactId.id,
+    contact => contact.metadata.contactID !== id,
   );
   const newLength = contactCollection.length;
+
   if (oldLength === newLength) {
-    res
-      .status(404)
-      .json({ message: `${contactId.id} did not match any contact record` });
+    res.status(404).json({ message: `${id} did not match any contact record` });
+
     return;
   }
+
   res.status(200).json({ data: contactCollection });
 });
 export default router;

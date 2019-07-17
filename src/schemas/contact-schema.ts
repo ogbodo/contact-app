@@ -56,7 +56,3 @@ export const patch = {
   zipCode: joi.string().optional(),
   website: joi.string().optional(),
 };
-
-export const id = {
-  id: joi.string().required(),
-};
