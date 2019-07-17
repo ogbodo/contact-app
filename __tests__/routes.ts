@@ -201,6 +201,15 @@ describe('API Routes', () => {
       });
   });
 
+  test('/Returns 404 status code when trying to get a blocked contact with a wrong id ', () => {
+    return request(app)
+      .get('/block/12345')
+      .expect(404)
+      .expect({
+        message: '12345 did not match any contact record',
+      });
+  });
+
   test('/block route to unblock a contact information to expect the rest of blocked contacts', () => {
     return request(app)
       .post('/block/9988973')
