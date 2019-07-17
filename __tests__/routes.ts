@@ -63,6 +63,24 @@ describe('API Routes', () => {
       });
   });
 
+  test('/Returns status code 400 for bad request ', () => {
+    return request(app)
+      .post('/contacts')
+      .send({
+        title: 'mrs.',
+        phone: '07032150416',
+        mobile: '+2348136503501',
+        email: 'solomon@gmail.com',
+        homeAddress: 'Nyanya Abuja',
+        company: 'Decagon',
+        country: 'Nigeria',
+        state: 'Abuja',
+        street: 'Dantata road',
+        zipCode: '10239891',
+      })
+      .expect(400);
+  });
+
   test('/Contact route to get a single contacts information', () => {
     return request(app)
       .get('/contacts/9988973')
