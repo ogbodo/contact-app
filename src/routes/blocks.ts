@@ -10,6 +10,7 @@ let blockedContactCollection: contactInterface.IData[] = [];
 function changeBlockStatus(contact: contactInterface.IData, status: boolean) {
   const updatedMetadata = {
     ...contact.metadata,
+    updatedAt: new Date().toISOString(),
     blocked: status,
   };
   return {
@@ -20,10 +21,7 @@ function changeBlockStatus(contact: contactInterface.IData, status: boolean) {
 // /**To blocked/unblock a contact */
 router.post('/:contactID', (req, res) => {
   const id = req.params.contactID;
-  const { error, value: contactId } = doValidation(
-    { id },
-    contactSchema.iDSchema,
-  );
+  const { error, value: contactId } = doValidation({ id }, contactSchema.id);
 
   if (error) {
     res.status(400).json({ error });
@@ -68,10 +66,7 @@ router.get('/', (_req, res) => {
 /**Fetches a single contacts  √√√√*/
 router.get('/:contactID', (req, res) => {
   const id = req.params.contactID;
-  const { error, value: contactId } = doValidation(
-    { id },
-    contactSchema.iDSchema,
-  );
+  const { error, value: contactId } = doValidation({ id }, contactSchema.id);
   if (error) {
     res.status(400).json({ error });
     return;
