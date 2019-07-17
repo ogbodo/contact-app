@@ -160,6 +160,17 @@ describe('API Routes', () => {
         ],
       });
   });
+
+  test('/Returns 404 when wrong contact data format is used to edit contact information ', () => {
+    return request(app)
+      .patch('/contacts/9988973')
+      .send({
+        title: 'Eng.',
+        fullName: '212355',
+      })
+      .expect(400);
+  });
+
   test('/Returns 404 status code for a wrong id update ', () => {
     return request(app)
       .patch('/contacts/12345')
