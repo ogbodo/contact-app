@@ -108,6 +108,14 @@ describe('API Routes', () => {
         },
       });
   });
+  test('/Returns 404 when wrong contact id is used to get contact information', () => {
+    return request(app)
+      .get('/contacts/12345')
+      .expect(404)
+      .expect({
+        message: '12345 did not match any contact record',
+      });
+  });
 
   test('/Contact route to return all contacts', () => {
     return request(app)
