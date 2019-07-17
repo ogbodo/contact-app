@@ -184,7 +184,7 @@ describe('API Routes', () => {
       });
   });
 
-  test('/block route to block a contact information to expect the rest of unblocked contacts', () => {
+  test('/block route to block a contact information and expect the rest of unblocked contacts returned', () => {
     return request(app)
       .post('/block/9988973')
       .expect(200)
@@ -193,7 +193,7 @@ describe('API Routes', () => {
 
   test('/block route to return all blocked contacts', () => {
     return request(app)
-      .get('/block/')
+      .get('/block')
       .expect(200)
       .expect(res => {
         expect(res.body.data.length).toBe(1);
@@ -254,15 +254,7 @@ describe('API Routes', () => {
       .expect({ data: [] });
   });
 
-  test('/returns 400 for bad request', () => {
-    return request(app)
-      .delete('/contacts/dfdfdf')
-      .expect(400)
-      .expect({
-        data: [],
-      });
-  });
-  test('/returns 404 for wrong contact id request', () => {
+  test('/returns 404 when a wrong contact id is used for request', () => {
     return request(app)
       .delete('/contacts/12345')
       .expect(404)
@@ -270,6 +262,7 @@ describe('API Routes', () => {
         message: '12345 did not match any contact record',
       });
   });
+
   test('/Contact route to delete a single contacts information', () => {
     return request(app)
       .delete('/contacts/9988973')
