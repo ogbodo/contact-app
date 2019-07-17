@@ -20,7 +20,6 @@ describe('API Routes', () => {
   });
 
   test('/contacts post a contact information and returns same contact ', () => {
-    Date.now = jest.fn(() => 9988973);
     return request(app)
       .post('/contacts')
       .send({
