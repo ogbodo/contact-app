@@ -1,10 +1,17 @@
 import request from 'supertest';
+import MockDate from 'mockdate';
 import app from '../src/app';
 
-describe('API Routes', () => {
+beforeEach(() => {
+  MockDate.set('2019-07-17T09:18:29.044Z');
   Date.now = jest.fn(() => 9988973);
-  /**TODO MOCK Date.toISOString */
+});
 
+afterEach(() => {
+  MockDate.reset();
+});
+
+describe('API Routes', () => {
   test('/Contact route to return empty list of contacts when none exists', () => {
     return request(app)
       .get('/contacts/')
@@ -13,6 +20,7 @@ describe('API Routes', () => {
   });
 
   test('/contacts post a contact information and returns same contact ', () => {
+    Date.now = jest.fn(() => 9988973);
     return request(app)
       .post('/contacts')
       .send({
@@ -35,7 +43,7 @@ describe('API Routes', () => {
             metadata: {
               contactID: '9988973',
               blocked: false,
-              createdAt: '7/16/2019',
+              createdAt: '2019-07-17T09:18:29.044Z',
             },
             contact: {
               title: 'mrs.',
@@ -64,7 +72,7 @@ describe('API Routes', () => {
           metadata: {
             contactID: '9988973',
             blocked: false,
-            createdAt: '7/16/2019',
+            createdAt: '2019-07-17T09:18:29.044Z',
           },
           contact: {
             title: 'mrs.',
@@ -106,8 +114,8 @@ describe('API Routes', () => {
             metadata: {
               contactID: '9988973',
               blocked: false,
-              createdAt: '7/16/2019',
-              updatedAt: '7/16/2019',
+              createdAt: '2019-07-17T09:18:29.044Z',
+              updatedAt: '2019-07-17T09:18:29.044Z',
             },
             contact: {
               title: 'pastor',
@@ -124,6 +132,18 @@ describe('API Routes', () => {
             },
           },
         ],
+      });
+  });
+  test('/Returns 404 status code for a wrong id update ', () => {
+    return request(app)
+      .patch('/contacts/12345')
+      .send({
+        title: 'pastor',
+        fullName: 'Mary Ogbodo',
+      })
+      .expect(404)
+      .expect({
+        message: '12345 did not match any contact record',
       });
   });
 
@@ -152,8 +172,8 @@ describe('API Routes', () => {
           metadata: {
             contactID: '9988973',
             blocked: true,
-            createdAt: '7/16/2019',
-            updatedAt: '7/16/2019',
+            createdAt: '2019-07-17T09:18:29.044Z',
+            updatedAt: '2019-07-17T09:18:29.044Z',
           },
           contact: {
             title: 'pastor',
@@ -179,6 +199,22 @@ describe('API Routes', () => {
       .expect({ data: [] });
   });
 
+  test('/returns 400 for bad request', () => {
+    return request(app)
+      .delete('/contacts/dfdfdf')
+      .expect(400)
+      .expect({
+        data: [],
+      });
+  });
+  test('/returns 404 for wrong contact id request', () => {
+    return request(app)
+      .delete('/contacts/12345')
+      .expect(404)
+      .expect({
+        message: '12345 did not match any contact record',
+      });
+  });
   test('/Contact route to delete a single contacts information', () => {
     return request(app)
       .delete('/contacts/9988973')
