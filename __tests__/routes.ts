@@ -2,6 +2,9 @@ import request from 'supertest';
 import MockDate from 'mockdate';
 import app from '../src/app';
 
+process.env.ATLAS_URI =
+  'mongodb+srv://Izuking:solomon1989@my-first-cluster-b5d43.gcp.mongodb.net/development?retryWrites=true&w=majority';
+
 beforeEach(() => {
   MockDate.set('2019-07-17T09:18:29.044Z');
   Date.now = jest.fn(() => 9988973);

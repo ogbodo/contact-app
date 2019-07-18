@@ -4,7 +4,9 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import contactRouter from './routes/contact';
-import blockedContactRouter from './routes/blocks';
+import blockRouter from './routes/block';
+import cors from 'cors';
+import mongoose from 'mongoose'; //This helps us to connect to our MongoDB database
 
 const app = express();
 
@@ -17,10 +19,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
+app.use(cors());
+
+const uri = process.env.ATLAS_URI!;
+mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true });
+const connection = mongoose.connection;
+connection.once('open', () => {
+  console.log('MongoDB database connection established successfully');
+});
 
 app.use('/contacts', contactRouter);
-app.use('/block', blockedContactRouter);
-// app.use('/unblock/:contactID', blockedContactRouter);
+app.use('/blocks', blockRouter);
 
 // catch 404 and forward to error handler
 app.use(function(_req, _res, next) {
