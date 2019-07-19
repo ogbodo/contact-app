@@ -86,7 +86,6 @@ router.post('/:contactID/unblock', (req, res) => {
 
 /**Fetches all blocked contacts */
 router.get('/blocks', (_req, res) => {
-  console.log('BLOCKS');
   Contact.find({ blocked: true })
     .then(contacts => res.status(200).json({ data: contacts }))
     .catch(err => res.status(400).json(`Error: ${err}`));
