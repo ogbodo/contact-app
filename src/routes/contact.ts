@@ -35,14 +35,6 @@ router.get('/', (_req, res) => {
     .catch(err => res.status(400).json(`Error: ${err}`));
 });
 
-/**Fetches a single contacts*/
-router.get('/:contactID', (req, res) => {
-  const id = req.params.contactID;
-  Contact.findById(id)
-    .then(contact => res.status(200).json({ data: contact }))
-    .catch(err => res.status(404).json(`Error: ${err}`));
-});
-
 /** Edit the contact information for a single contact*/
 router.patch('/:contactID', (req, res) => {
   const id = req.params.contactID;
@@ -66,6 +58,54 @@ router.delete('/:contactID', (req, res) => {
   Contact.findByIdAndDelete(id)
     .then(() => res.status(200).json('Contact deleted'))
     .catch(err => res.status(400).json(`Error: ${err}`));
+});
+
+// /**To blocked a contact */
+router.post('/:contactID/block', (req, res) => {
+  const id = req.params.contactID;
+  Contact.findByIdAndUpdate(id, { blocked: true })
+    .then(() =>
+      Contact.find({ blocked: false })
+        .then(contacts => res.status(200).json({ data: contacts }))
+        .catch(err => res.status(400).json(`Error: ${err}`)),
+    )
+    .catch(err => res.status(400).json(`Error: ${err}`));
+});
+
+// /**To unblocked a contact */
+router.post('/:contactID/unblock', (req, res) => {
+  const id = req.params.contactID;
+  Contact.findByIdAndUpdate(id, { blocked: false })
+    .then(() =>
+      Contact.find({ blocked: true })
+        .then(contacts => res.status(200).json({ data: contacts }))
+        .catch(err => res.status(400).json(`Error: ${err}`)),
+    )
+    .catch(err => res.status(400).json(`Error: ${err}`));
+});
+
+/**Fetches all blocked contacts */
+router.get('/blocks', (_req, res) => {
+  console.log('BLOCKS');
+  Contact.find({ blocked: true })
+    .then(contacts => res.status(200).json({ data: contacts }))
+    .catch(err => res.status(400).json(`Error: ${err}`));
+});
+
+/**Fetches a single blocked contacts*/
+router.get('/blocks/:contactID', (req, res) => {
+  const id = req.params.contactID;
+  Contact.findById(id)
+    .then(contact => res.status(200).json({ data: contact }))
+    .catch(err => res.status(404).json(`Error: ${err}`));
+});
+
+/**Fetches a single contacts*/
+router.get('/:contactID', (req, res) => {
+  const id = req.params.contactID;
+  Contact.findById(id)
+    .then(contact => res.status(200).json({ data: contact }))
+    .catch(err => res.status(404).json(`Error: ${err}`));
 });
 
 export default router;

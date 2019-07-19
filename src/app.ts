@@ -4,7 +4,6 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import contactRouter from './routes/contact';
-import blockRouter from './routes/block';
 import cors from 'cors';
 import mongoose from 'mongoose'; //This helps us to connect to our MongoDB database
 
@@ -28,8 +27,9 @@ connection.once('open', () => {
   console.log('MongoDB database connection established successfully');
 });
 
-app.use('/contacts', contactRouter);
-app.use('/blocks', blockRouter);
+app.use('/api/contacts', contactRouter);
+
+// app.use('/blocks', blockRouter);
 
 // catch 404 and forward to error handler
 app.use(function(_req, _res, next) {
