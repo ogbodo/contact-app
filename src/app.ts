@@ -20,11 +20,13 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(cors());
 
-const uri = process.env.ATLAS_URI!;
+const uri =
+  process.env.ATLAS_URI ||
+  'mongodb+srv://Izuking:solomon1989@my-first-cluster-b5d43.gcp.mongodb.net/test?retryWrites=true&w=majority';
 mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true });
 const connection = mongoose.connection;
 connection.once('open', () => {
-  console.log('MongoDB database connection established successfully');
+  // console.log('MongoDB database connection established successfully');
 });
 
 app.use('/api/contacts', contactRouter);
