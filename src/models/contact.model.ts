@@ -15,6 +15,7 @@ export interface ICreateContact extends mongoose.Document {
   street?: string; //contact's street name
   zipCode?: string; //contact's country zip code
   website?: string; //contact's website address
+  note?: string; //Short note about this contact
 }
 
 const contactSchema = new Schema({
@@ -31,6 +32,7 @@ const contactSchema = new Schema({
   street: { type: String },
   zipCode: { type: String },
   website: { type: String },
+  note: { type: String },
 });
 
 const Contact = mongoose.model<ICreateContact>('Contact', contactSchema);

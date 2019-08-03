@@ -13,6 +13,9 @@ export function doValidation(object: any, schema: joi.SchemaLike) {
 }
 /**Saves contact */
 router.post('/', (req, res) => {
+  console.log(req.body);
+  console.log('req.body');
+
   const { error, value } = doValidation(req.body, {
     ...contactSchema.post,
   });
@@ -60,7 +63,7 @@ router.delete('/:contactID', (req, res) => {
     .catch(err => res.status(400).json(`Error: ${err}`));
 });
 
-// /**To blocked a contact */
+// /**To block a contact */
 router.post('/:contactID/block', (req, res) => {
   const id = req.params.contactID;
   Contact.findByIdAndUpdate(id, { blocked: true })

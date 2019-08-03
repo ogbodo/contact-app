@@ -20,6 +20,7 @@ interface CreateContact {
   street?: string; //contact's street name
   zipCode?: string; //contact's country zip code
   website?: string; //contact's website address
+  note?: string; //Short note about this contact
 }
 ```
 
@@ -27,7 +28,7 @@ For example
 
 ```json
 {
-    title: "Mr."
+    "title": "Mr."
     fullName: "Solomon Ogbodo"
     phone: "07032150416"
     mobile: "+2348032150416"
@@ -39,6 +40,7 @@ For example
     street:"Aja street"
     zipCode:"10009234"
     website:"solomon.me"
+    note:"Short description about the contact"
 
 }
 ```
@@ -244,7 +246,7 @@ Returns status code `404` if no contact exist or no contact matches the requeste
 
 ## To block a specific contact
 
-`POST /block/:contactID`
+`POST /blocks/:contactID`
 
 Returns status code `200` if the contact exist. The response body would contain
 
@@ -319,7 +321,7 @@ Returns status code `404` if no contact exist or no contact matches the requeste
 
 ## To view blocked contacts
 
-`GET /block`
+`GET /blocks`
 
 Returns status code `200` if contacts exist. The response body would contain
 
